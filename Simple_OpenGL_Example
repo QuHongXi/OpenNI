@@ -1,0 +1,68 @@
+// SimpleOpenGL.cpp : 定义控制台应用程序的入口点。
+// Simple OpenGL example for OpenNI2.2
+
+#include "stdafx.h"
+#include <gl\glut.h>
+#include <OpenNI.h>
+
+int window_w = 640;
+int window_h = 480;
+OniRGB888Pixel *gl_texture;
+
+
+void gl_KeyboardCallback(unsigned char key, int x, int y)
+{ 
+	if (key == 27) //ESC key
+		exit(1);
+}
+
+
+void gl_IdleCallback()
+{
+	glutPostRedisplay();
+}
+
+
+void gl_DisplayCallback()
+{
+	// clear the OpenGL buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// setup the OpenGL viewpoint 
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, window_w, window_h, 0, -1.0, 1.0);
+	// UPDATE TEXTURE
+	// creat the OpenGL texture map
+	glTexParameteri(GL_TEXTURE_2D, 0x8191, GLU_TRUE); //0x8191 = GL_GENERATE_MIPMAP
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, window_w, window_h, 0, GL_RGB, GL_UNSIGNED_BYTE, gl_texture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(0.f, 0.f, 0.f);
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(0.0f, (float)window_h, 0.0f);  
+	glTexCoord2f(1.0f, 1.0f); 
+	glVertex3f((float)window_w, (float)window_h, 0.0f); 
+	glTexCoord2f(1.0f, 0.0f);  
+	glVertex3f((float)window_w, 0.0f, 0.0f);
+	glEnd();
+	glutSwapBuffers();
+}
+
+
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	gl_texture = (OniRGB888Pixel*)malloc( window_w * window_h * sizeof(OniRGB888Pixel) );
+	glutInit(&argc,(char**)argv);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+	glutInitWindowSize(window_w, window_h);
+	glutCreateWindow("Simple OpenGL For OpenNI2.2");
+	glutKeyboardFunc(gl_KeyboardCallback);
+	glutDisplayFunc(gl_DisplayCallback);
+	glutIdleFunc(gl_IdleCallback);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
+	glutMainLoop();
+	return 0;
+}
